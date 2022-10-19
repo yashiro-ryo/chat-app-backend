@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
@@ -37,13 +36,6 @@ func login(c echo.Context) error {
 	}
 
 	fmt.Println(token, refleshToken)
-
-	cookie := new(http.Cookie)
-	cookie.Name = "token"
-	cookie.Value = token + "/" + refleshToken
-	cookie.Expires = time.Now().Add(24 * time.Hour)
-	//cookie.HttpOnly = true
-	c.SetCookie(cookie)
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"token":        token,
