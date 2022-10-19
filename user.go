@@ -81,7 +81,7 @@ func HandleGetUser(userId int, ws *websocket.Conn) {
 	}
 
 	response := GetUsersResponse{
-		ResponseType: "get-user-result",
+		ResponseType: "get-users-result",
 		Status:       200,
 		GetUserBody: GetUserBody{
 			UserInfos: userInfos,
