@@ -125,7 +125,7 @@ func handleWebSocket(c echo.Context) error {
 func SetupRouter() {
 	e := echo.New()
 	e.Use(middleware.Logger())
-	//SetupJwtRouter(*e)
+	SetupJwtRouter(*e)
 
 	// file
 	e.Static("/", "public")
