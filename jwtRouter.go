@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
@@ -34,6 +35,12 @@ func login(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	cookie := new(http.Cookie)
+	cookie.Name = "token"
+	cookie.Value = token + "/" + refleshToken
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	c.SetCookie(cookie)
 
 	fmt.Println(token, refleshToken)
 
