@@ -49,7 +49,7 @@ func CheckLogin(email string, pass string) int {
 		return 0
 	}
 	// SQLの実行
-	rows, err := db.Query("SELECT user_id, password FROM user WHERE email = '" + email + "'")
+	rows, err := db.Query("SELECT user_id, pass_hashed FROM user WHERE email = '" + email + "'")
 	if err != nil {
 		log.Fatal(err)
 	}
