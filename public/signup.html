@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="/signup.css" />
+  <title>アカウント作成
+  </title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">アカウント作成
+      </div>
+      <div class="card-body">
+        <form class="form">
+          <p>名前</p>
+          <input id="user-name" type="text" class="input-form" placeholder="例) 徳島 太郎" required />
+          <p>メールアドレス</p>
+          <input id="user-email" type="text" class="input-form" placeholder="例) example@abcde.com" required />
+          <p>パスワード</p>
+          <input id="user-pass" type="password" class="input-form" placeholder="例) password" required />
+        </form>
+        <p id="error-msg" style="font-weight: bold; color: #f00;"></p>
+        <button class="btn btn-primary" onclick=handleCreateAccount()>アカウント作成</button>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    async function sha256(text) {
+      const uint8 = new TextEncoder().encode(text)
+      const digest = await crypto.subtle.digest('SHA-256', uint8)
+      return Array.from(new Uint8Array(digest)).map(v => v.toString(16).padStart(2, '0')).join('')
+    }
+
+    function handleCreateAccount() {
+      const userName = document.getElementById('user-name').value
+      const userEmail = document.getElementById('user-email').value
+      const userPass = document.getElementById('user-pass').value
+      const errorMsg = document.getElementById('error-msg')
+      if (userName == 0 || userEmail == 0 || userPass == 0) {
+        // TODO エラー表示
+        return
+      }
+      const checkFlag = window.confirm('下記の内容でアカウントを作成しても良いですか?\n名前 :' + userName + '\nメールアドレス :' + userEmail + '\nパスワード : 入力された値');
+      if(!checkFlag){
+        return
+      }
+      sha256(userPass).then(hash => {
+        axios.post('http://localhost:8080/signup', {
+          userName: userName,
+          userEmail: userEmail,
+          userPassHashed: hash
+        }).then((result) => {
+          console.log(result)
+          if(result.data.status == 1){
+            // アカウント作成成功
+            window.location.href="http://localhost:8080/singin"
+            return
+          }else if(result.data.status == 2){
+            errorMsg.textContent = 'アカウントが存在しました'
+            return
+          }else{
+            errorMsg.textContent = '予期しないエラーが発生しました'
+            return
+          }
+        })
+      })
+    }
+  </script>
+</body>
+
+</html>

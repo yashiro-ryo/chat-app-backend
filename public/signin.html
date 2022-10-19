@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="/signin.css" />
+  <title>チャットアプリ ログイン
+  </title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="signin-form">
+      <div class="app-name">
+        <p>チャットアプリ アプリ</p>
+      </div>
+      <div class="card">
+        <form class="form" method="post">
+          <p>メールアドレス</p>
+          <input class="form-input" id="form-email" type="email" placeholder="メールアドレス" name="userEmail" required />
+          <p>パスワード</p>
+          <input class="form-input" id="form-pass" type="password" placeholder="パスワード" name="userPass" required />
+        </form>
+        <p id="error-msg"></p>
+        <button class="btn btn-primary" onclick="handleSubmit()">ログイン</button>
+        <div class="form-footer">
+          <a href="/signup">アカウント作成</a><br>
+          <a href="/recovery">パスワードを忘れた方はこちら</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    async function sha256(text) {
+      const uint8 = new TextEncoder().encode(text)
+      const digest = await crypto.subtle.digest('SHA-256', uint8)
+      return Array.from(new Uint8Array(digest)).map(v => v.toString(16).padStart(2, '0')).join('')
+    }
+
+    function handleSubmit() {
+      var formEmail = document.getElementById('form-email');
+      var formPass = document.getElementById('form-pass');
+      var errorMsg = document.getElementById('error-msg')
+      // validation 
+      if (formEmail.length == 0 || formPass.length == 0) {
+        return
+      }
+      // password hash
+      sha256(formPass.value).then((passwordHashed) => {
+        // post signin data
+        axios.post('http://localhost:8080/login', {
+          email: formEmail.value,
+          password: formPass.value//passwordHashed
+        }, {
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+        }).then((result) => {
+          if (result.data.token == null) {
+            // ログインできなかった
+            errorMsg.innerText = result.data.errorMsg
+            return
+          } else {
+            // ログイン成功
+            console.log(result.data)
+            localStorage.setItem("data-user-token", result.data.token)
+            localStorage.setItem("data-user-refleshtoken", result.data.refleshtoken)
+            // redirect
+            //window.location.href = "http://localhost:8080/talkroom"
+            return
+          }
+        }).catch((e) => {
+          console.log('error :' + e)
+          errorMsg.innerText = e
+        })
+      })
+    }
+  </script>
+</body>
+
+</html>
