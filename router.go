@@ -26,6 +26,7 @@ type RequestStruct struct {
 		ContentType  *string `json:"contentType"`
 		Content      *string `json:"content"`
 		DeleteUserId *int    `json:"deleteUserId"`
+		AddUserId    *int    `json:"addUserId"`
 	}
 }
 
@@ -92,6 +93,12 @@ func handleWebSocket(c echo.Context) error {
 					fmt.Println("not found user id")
 				}
 			case "add-user":
+				fmt.Println("add user")
+				if request.Data.UserId != nil && request.Data.AddUserId != nil {
+					HandleAddUser(*request.Data.UserId, *request.Data.AddUserId, ws)
+				} else {
+					fmt.Println("failed to add user")
+				}
 			case "delete-user":
 				fmt.Println("delete-user")
 				if request.Data.UserId != nil && request.Data.DeleteUserId != nil {

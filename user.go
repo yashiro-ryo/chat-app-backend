@@ -102,3 +102,8 @@ func HandleDeleteUser(userId int, removeUserId int, ws *websocket.Conn) {
 	RemoveFriend(userId, removeUserId)
 	HandleGetUser(userId, ws)
 }
+
+func HandleAddUser(userId int, addUserId int, ws *websocket.Conn) {
+	AddFriend(userId, addUserId)
+	HandleGetUser(userId, ws)
+}

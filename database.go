@@ -209,7 +209,7 @@ func AddFriend(userId int, addUserId int) error {
 		return errors.New("db is not found")
 	}
 	// insert
-	ins, err := db.Prepare("INSERT INTO user_frinend (user_id, friend_user_id) VALUES(?,?)")
+	ins, err := db.Prepare("INSERT INTO user_friend (user_id, friend_user_id) VALUES(?,?)")
 	if err != nil {
 		log.Fatal(err)
 	}
