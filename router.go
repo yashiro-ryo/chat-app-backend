@@ -25,6 +25,7 @@ type RequestStruct struct {
 		TalkroomId   *int    `json:"talkroomId"`
 		ContentType  *string `json:"contentType"`
 		Content      *string `json:"content"`
+		DeleteUserId *int    `json:"deleteUserId"`
 	}
 }
 
@@ -93,6 +94,11 @@ func handleWebSocket(c echo.Context) error {
 			case "add-user":
 			case "delete-user":
 				fmt.Println("delete-user")
+				if request.Data.UserId != nil && request.Data.DeleteUserId != nil {
+					HandleDeleteUser(*request.Data.UserId, *request.Data.DeleteUserId, ws)
+				} else {
+					fmt.Println("failed to delete user")
+				}
 			case "get-talkrooms":
 				fmt.Println("get-talkrooms")
 				if request.Data.UserId != nil {
