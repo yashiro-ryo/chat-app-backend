@@ -70,7 +70,9 @@ func handleWebSocket(c echo.Context) error {
 			}
 			user := token.(*jwt.Token)
 			claims := user.Claims.(jwt.MapClaims)
-			userId := int64(claims["user_id"].(float64))
+			exp := int64(claims["exp"].(float64))
+			fmt.Println("token expired at", exp)
+			userId := float64(claims["user_id"].(float64))
 			fmt.Println("token-re", userId)
 
 			switch request.Request {
