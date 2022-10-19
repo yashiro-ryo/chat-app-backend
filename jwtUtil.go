@@ -16,7 +16,7 @@ func GenerateToken(tokenType string, userId int) (string, error) {
 	// ペイロードの作成
 	claims := jwt.MapClaims{
 		"token-type": tokenType,
-		"user_id":    12345678,
+		"user_id":    userId,
 		"exp":        expiredTime,
 	}
 

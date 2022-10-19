@@ -38,7 +38,10 @@ func login(c echo.Context) error {
 
 	cookie := new(http.Cookie)
 	cookie.Name = "token"
-	cookie.Value = token + "/" + refleshToken
+	// 現時点で使用するのはtokenのみ
+	// reflesh token は実装検討
+	//cookie.Value = token + "/" + refleshToken
+	cookie.Value = token
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	c.SetCookie(cookie)
 
@@ -48,6 +51,24 @@ func login(c echo.Context) error {
 		"token":        token,
 		"refleshtoken": refleshToken,
 	})
+}
+
+func CheckToken(tokenString string) (interface{}, error) {
+	keyFunc := func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte("SECRET_KEY"), nil
+	}
+
+	token, err := jwt.Parse(tokenString, keyFunc)
+	if err != nil {
+		return nil, err
+	}
+	if !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+	return token, nil
 }
 
 // ユーザ情報取得

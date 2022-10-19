@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/net/websocket"
@@ -54,6 +55,23 @@ func handleWebSocket(c echo.Context) error {
 			}
 
 			fmt.Println("request :", request.Request)
+
+			// token取得
+			cookie, err := c.Cookie("token")
+			if err != nil {
+				return
+			}
+			fmt.Println("cookie name", cookie.Name)
+			fmt.Println("cookie value", cookie.Value)
+			// 有効期限切れの場合は再度ログイン(reflesh token はまだ実装しない)
+			token, err := CheckToken(cookie.Value)
+			if err != nil {
+				return
+			}
+			user := token.(*jwt.Token)
+			claims := user.Claims.(jwt.MapClaims)
+			userId := int64(claims["user_id"].(float64))
+			fmt.Println("token-re", userId)
 
 			switch request.Request {
 			case "search-user":
