@@ -58,3 +58,42 @@ func HandleGetUserInfo(email string, ws *websocket.Conn) error {
 	err = websocket.Message.Send(ws, string(encodedJson))
 	return err
 }
+
+type UserInfo struct {
+	UserName string `json:"userName"`
+	UserId   int    `json:"userId"`
+}
+
+type GetUsersResponse struct {
+	ResponseType string `json:"response"`
+	Status       int    `json:"status"`
+	GetUserBody  `json:"body"`
+}
+
+type GetUserBody struct {
+	UserInfos []BasicUserInfo
+}
+
+func HandleGetUser(userId int, ws *websocket.Conn) {
+	userInfos, err := GetUsers(userId)
+	if err != nil {
+		return
+	}
+
+	response := GetUsersResponse{
+		ResponseType: "get-user-result",
+		Status:       200,
+		GetUserBody: GetUserBody{
+			UserInfos: userInfos,
+		},
+	}
+
+	// 構造体をjsonにエンコードする
+	encodedJson, _ := json.Marshal(response)
+
+	fmt.Println("encoded json :", string(encodedJson))
+	err = websocket.Message.Send(ws, string(encodedJson))
+	if err != nil {
+		return
+	}
+}

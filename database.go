@@ -178,8 +178,8 @@ func GetTalkroomMessage(talkroomId int) ([]Message, error) {
 // address
 // userIdとuserNameの構造体
 type BasicUserInfo struct {
-	UserId   *int
-	UserName *string
+	UserId   *int    `json:"userId"`
+	UserName *string `json:"userName"`
 }
 
 func GetUserInfo(email string) (BasicUserInfo, error) {
@@ -228,6 +228,42 @@ func RemoveFriend(user_id int, removeUserId int) error {
 	}
 	ins.Exec(user_id, removeUserId)
 	return nil
+}
+
+func GetUsers(userId int) ([]BasicUserInfo, error) {
+	var userInfos []BasicUserInfo
+	// db にインスタンスが渡っていなければreturn
+	if db == nil {
+		return nil, errors.New("db is not found")
+	}
+	// SQLの実行
+	rows, err := db.Query("SELECT friend_user_id FROM user_friend WHERE user_id = " + strconv.Itoa(userId))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var userId int
+		var userName string
+		err = rows.Scan(&userId)
+		rowss, err := db.Query("SELECT user_id, name FROM user WHERE user_id = " + strconv.Itoa(userId))
+		if err != nil {
+			return nil, errors.New("query error")
+		}
+		// １件のみのヒットでなければやばい
+		for rowss.Next() {
+			rowss.Scan(&userId, &userName)
+		}
+		fmt.Println("serach user :", userId, userName)
+		user := BasicUserInfo{
+			UserId:   &userId,
+			UserName: &userName,
+		}
+		userInfos = append(userInfos, user)
+	}
+	return userInfos, err
 }
 
 // 取る必要にある関数

@@ -83,6 +83,13 @@ func handleWebSocket(c echo.Context) error {
 				} else {
 					fmt.Println("not found email")
 				}
+			case "get-user":
+				fmt.Println("get-user")
+				if request.Data.UserId != nil {
+					HandleGetUser(*request.Data.UserId, ws)
+				} else {
+					fmt.Println("not found user id")
+				}
 			case "add-user":
 			case "delete-user":
 				fmt.Println("delete-user")
