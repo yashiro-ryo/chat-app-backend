@@ -68,6 +68,8 @@ func handleWebSocket(c echo.Context) error {
 			// 有効期限切れの場合は再度ログイン(reflesh token はまだ実装しない)
 			token, err := CheckToken(cookie.Value)
 			if err != nil {
+				fmt.Println(err)
+				fmt.Println("failed to check token")
 				return
 			}
 			user := token.(*jwt.Token)
