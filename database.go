@@ -330,3 +330,19 @@ func ResetDeleteStatus(talkroomId int) error {
 }
 
 // 取る必要にある関数
+func GetMyInfo(token string) (int, string, error) {
+	if db == nil {
+		return 0, "", errors.New("db is not found")
+	}
+
+	rows, err := db.Query("SELECT user_id, name FROM user WHERE user_id = (SELECT user_id FROM token WHERE token = '" + token + "')")
+	if err != nil {
+		return 0, "", errors.New("query error")
+	}
+	var userId int
+	var userName string
+	for rows.Next() {
+		rows.Scan(&userId, &userName)
+	}
+	return userId, userName, nil
+}

@@ -82,6 +82,9 @@ func handleWebSocket(c echo.Context) error {
 			fmt.Println("token-re", userId)
 
 			switch request.Request {
+			case "get-myinfo":
+				fmt.Println("called get myinfo")
+				HandleGetMyInfo(cookie.Value, ws)
 			case "search-user":
 				fmt.Println("serach-user")
 				if request.Data.QueryEmail != nil {

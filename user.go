@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"golang.org/x/net/websocket"
@@ -22,6 +23,47 @@ type ResultUser struct {
 
 type Body struct {
 	ResultUser `json:"resultUser"`
+}
+
+type GetMyInfoResponse struct {
+	ResponseType string `json:"response"`
+	Status       int    `json:"status"`
+	MyInfoBody   `json:"body"`
+}
+
+type MyInfoBody struct {
+	UserId   int    `json:"userId"`
+	UserName string `json:"userName"`
+}
+
+func HandleGetMyInfo(token string, ws *websocket.Conn) error {
+	userId, userName, err := GetMyInfo(token)
+	if err != nil {
+		return err
+	}
+
+	if userId == 0 {
+		fmt.Println("userId is not found")
+		return errors.New("userId is not found")
+	}
+	response := GetMyInfoResponse{
+		ResponseType: "get-myinfo-result",
+		Status:       200,
+		MyInfoBody: MyInfoBody{
+			userId,
+			userName,
+		},
+	}
+
+	// 構造体をjsonにエンコードする
+	encodedJson, _ := json.Marshal(response)
+
+	fmt.Println("encoded json :", string(encodedJson))
+	err = websocket.Message.Send(ws, string(encodedJson))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func HandleGetUserInfo(email string, ws *websocket.Conn) error {
