@@ -125,3 +125,24 @@ func HandleAddMessage(userId int, talkroomId int, contentType string, content st
 	}
 	return nil
 }
+
+func HandleCreateTalkroom(userId int, users []int, talkroomName string, ws *websocket.Conn) {
+	// トークルーム作成
+	talkroomId, err := CreateTalkroomData(userId, talkroomName)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	// トークルームとユーザー情報の紐付け
+	// 自分をトークルーム情報に紐付ける
+	//BindUserIdForCreateTalkroom(userId, talkroomId)
+	for i, v := range users {
+		fmt.Println("from frontend", i, v)
+		fmt.Println("talkroom id", talkroomId)
+		BindUserIdForCreateTalkroom(users[i], talkroomId)
+	}
+	// トークルームのdbを作成
+	CreateTalkroomTable(talkroomId)
+	// 結果の表示
+	HandleGetTalkrooms(userId, ws)
+}

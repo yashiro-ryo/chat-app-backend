@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"strconv"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -264,6 +266,67 @@ func GetUsers(userId int) ([]BasicUserInfo, error) {
 		userInfos = append(userInfos, user)
 	}
 	return userInfos, err
+}
+
+func CreateTalkroomData(ownerUser int, talkroomName string) (int, error) {
+	if db == nil {
+		return 0, errors.New("db is not found")
+	}
+	// insert
+	ins, err := db.Prepare("INSERT INTO talkroom (talkroom_id, talkroom_name, is_deleted) VALUES(?,?,?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	rand.Seed(time.Now().UnixNano())
+	var randInt = rand.Intn(1000-1) + 1
+	ins.Exec(nil, talkroomName, randInt)
+	rows, err := db.Query("SELECT talkroom_id FROM talkroom WHERE is_deleted = " + strconv.Itoa(randInt))
+	if err != nil {
+		log.Fatal(err)
+	}
+	var talkroomId = 0
+	for rows.Next() {
+		rows.Scan(&talkroomId)
+	}
+	return talkroomId, nil
+}
+
+func BindUserIdForCreateTalkroom(bindUserId int, talkroomId int) error {
+	if db == nil {
+		return errors.New("db is not found")
+	}
+	// insert
+	ins, err := db.Prepare("INSERT INTO talkroom_user (user_id, talkroom_id, is_owner) VALUES(?,?,?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	ins.Exec(bindUserId, talkroomId, 1)
+	fmt.Println("insert into talkroom user")
+	return nil
+}
+
+func CreateTalkroomTable(talkroomId int) error {
+	if db == nil {
+		return errors.New("db is not found")
+	}
+	// insert
+	_, err := db.Query("CREATE TABLE IF NOT EXISTS message_" + strconv.Itoa(talkroomId) + " (message_id int auto_increment not null primary key, content_type varchar(255) not null, content varchar(10) not null, sent_user_id int not null, sent_at datetime)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return nil
+}
+
+func ResetDeleteStatus(talkroomId int) error {
+	if db == nil {
+		return errors.New("db is not found")
+	}
+	// insert
+	_, err := db.Query("UPDATE talkroom SET is_deleted = 0 WHERE talkroom_id = " + strconv.Itoa(talkroomId))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return nil
 }
 
 // 取る必要にある関数

@@ -61,6 +61,7 @@ func handleWebSocket(c echo.Context) error {
 			// token取得
 			cookie, err := c.Cookie("token")
 			if err != nil {
+				fmt.Println("cookie error", err)
 				return
 			}
 			fmt.Println("cookie name", cookie.Name)
@@ -70,6 +71,7 @@ func handleWebSocket(c echo.Context) error {
 			if err != nil {
 				fmt.Println(err)
 				fmt.Println("failed to check token")
+				c.Redirect(http.StatusOK, "http://localhost:8080/signin")
 				return
 			}
 			user := token.(*jwt.Token)
@@ -115,6 +117,11 @@ func handleWebSocket(c echo.Context) error {
 				}
 			case "create-talkroom":
 				fmt.Println("create-talkroom")
+				if request.Data.UserId != nil && request.Data.UserIds != nil && request.Data.TalkroomName != nil {
+					HandleCreateTalkroom(*request.Data.UserId, *request.Data.UserIds, *request.Data.TalkroomName, ws)
+				} else {
+					fmt.Println("fail to create talkroom")
+				}
 			case "delete-talkroom":
 			case "get-message":
 				fmt.Println("get-message")
