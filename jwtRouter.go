@@ -27,13 +27,19 @@ func login(c echo.Context) error {
 		})
 	}
 
-	token, err := GenerateToken("token", userId)
+	token, tokenExpiredAt, err := GenerateToken("token", userId)
 	if err != nil {
 		return err
 	}
-	refleshToken, err := GenerateToken("refleshtoken", userId)
+	refleshToken, refleshTokenExpiredAt, err := GenerateToken("refleshtoken", userId)
 	if err != nil {
 		return err
+	}
+
+	// dbにtokenとreflesh tokenを保存する
+	err = SaveToken(userId, token, tokenExpiredAt, refleshToken, refleshTokenExpiredAt)
+	if err != nil {
+		return errors.New("failed save token to db")
 	}
 
 	cookie := new(http.Cookie)
@@ -44,6 +50,8 @@ func login(c echo.Context) error {
 	cookie.Value = token
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	c.SetCookie(cookie)
+	cookie.Name = "refleshToken"
+	cookie.Value = refleshToken
 
 	fmt.Println(token, refleshToken)
 

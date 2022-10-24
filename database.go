@@ -78,6 +78,37 @@ func CheckLogin(email string, pass string) int {
 	}
 }
 
+// token と reflesh tokenをdbに登録する(認証サーバーのような感じ)
+func SaveToken(userId int, token string, tokenExpiredAt int64, refleshToken string, refleshTokenExpiredAt int64) error {
+	if db == nil {
+		return errors.New("db is not found")
+	}
+	rows, err := db.Query("SELECT user_id FROM token WHERE user_id = " + strconv.Itoa(userId))
+	if err != nil {
+		log.Fatal(err)
+	}
+	var counter int
+	for rows.Next() {
+		counter++
+	}
+	if counter == 1 {
+		// データがある場合はupdate
+		ins, err := db.Prepare("UPDATE token SET user_id=?, token=?, token_expired_at=?, reflesh_token=?, reflesh_token_expired_at=? WHERE user_id = " + strconv.Itoa(userId))
+		if err != nil {
+			log.Fatal(err)
+		}
+		ins.Exec(userId, token, tokenExpiredAt, refleshToken, refleshTokenExpiredAt)
+	} else {
+		// データがない場合は挿入(migrate)
+		ins, err := db.Prepare("INSERT INTO token (user_id, token, token_expired_at, reflesh_token, reflesh_token_expired_at) VALUES(?,?,?,?,?)")
+		if err != nil {
+			log.Fatal(err)
+		}
+		ins.Exec(userId, token, tokenExpiredAt, refleshToken, refleshTokenExpiredAt)
+	}
+	return nil
+}
+
 // talk
 func GetTalkrooms(userId int) ([]Talkroom, error) {
 	if db == nil {

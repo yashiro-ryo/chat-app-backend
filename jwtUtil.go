@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func GenerateToken(tokenType string, userId int) (string, error) {
+func GenerateToken(tokenType string, userId int) (string, int64, error) {
 	var expiredTime int64
 	// reflesh token の場合は有効期限を少し長くする
 	if tokenType == "token" {
@@ -26,7 +26,7 @@ func GenerateToken(tokenType string, userId int) (string, error) {
 	// トークンに署名を付与
 	tokenString, err := token.SignedString([]byte("SECRET_KEY"))
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
-	return tokenString, err
+	return tokenString, expiredTime, err
 }
