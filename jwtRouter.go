@@ -45,7 +45,6 @@ func login(c echo.Context) error {
 	cookie := new(http.Cookie)
 	cookie.Name = "token"
 	cookie.Value = token
-	cookie.Expires = time.Now().Add(24 * time.Hour)
 	cookie.HttpOnly = true
 	c.SetCookie(cookie)
 	cookie.Name = "refleshToken"
