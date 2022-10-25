@@ -44,9 +44,6 @@ func login(c echo.Context) error {
 
 	cookie := new(http.Cookie)
 	cookie.Name = "token"
-	// 現時点で使用するのはtokenのみ
-	// reflesh token は実装検討
-	//cookie.Value = token + "/" + refleshToken
 	cookie.Value = token
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	cookie.HttpOnly = true
