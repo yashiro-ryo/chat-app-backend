@@ -49,10 +49,12 @@ func login(c echo.Context) error {
 	//cookie.Value = token + "/" + refleshToken
 	cookie.Value = token
 	cookie.Expires = time.Now().Add(24 * time.Hour)
+	cookie.HttpOnly = true
 	c.SetCookie(cookie)
 	cookie.Name = "refleshToken"
 	cookie.Value = refleshToken
-
+	cookie.HttpOnly = true
+	c.SetCookie(cookie)
 	fmt.Println(token, refleshToken)
 
 	return c.JSON(http.StatusOK, echo.Map{
