@@ -64,8 +64,6 @@ func handleWebSocket(c echo.Context) error {
 				fmt.Println("cookie error", err)
 				return
 			}
-			fmt.Println("cookie name", cookie.Name)
-			fmt.Println("cookie value", cookie.Value)
 			// 有効期限切れの場合は再度ログイン(reflesh token はまだ実装しない)
 			token, err := CheckToken(cookie.Value)
 			if err != nil {
@@ -142,27 +140,6 @@ func handleWebSocket(c echo.Context) error {
 					}
 				}
 			}
-
-			/*
-				// token 認証
-				// talkroomにメッセージを追加
-				err = SetMessage(int(map1["talkroomId"].(float64)), int(map1["sentUserId"].(float64)), map1["content"].(string))
-				if err != nil {
-					c.String(http.StatusOK, `{"error":"db error"}`)
-				}
-				var userResult []Message
-				// talkroomからメッセージを取得
-				userResult, err = GetTalkroomMessage(int(map1["talkroomId"].(float64)))
-				if err != nil {
-					c.String(http.StatusOK, `{"error":"db error"}`)
-				}
-
-				if err != nil {
-					c.Logger().Error(err)
-				}
-
-				data1, _ := json.Marshal(userResult)
-			*/
 
 			// Client からのメッセージを元に返すメッセージを作成し送信する
 			err = websocket.Message.Send(ws, `{"message": "banana"}`)
