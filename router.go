@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/net/websocket"
@@ -64,25 +63,20 @@ func handleWebSocket(c echo.Context) error {
 				fmt.Println("cookie error", err)
 				return
 			}
+			token := cookie.Value
 			// 有効期限切れの場合は再度ログイン(reflesh token はまだ実装しない)
-			token, err := CheckToken(cookie.Value)
+			_, err = CheckToken(token)
 			if err != nil {
 				fmt.Println(err)
 				fmt.Println("failed to check token")
 				c.Redirect(http.StatusOK, "http://localhost:8080/signin")
 				return
 			}
-			user := token.(*jwt.Token)
-			claims := user.Claims.(jwt.MapClaims)
-			exp := int64(claims["exp"].(float64))
-			fmt.Println("token expired at", exp)
-			userId := float64(claims["user_id"].(float64))
-			fmt.Println("token-re", userId)
 
 			switch request.Request {
 			case "get-myinfo":
 				fmt.Println("called get myinfo")
-				HandleGetMyInfo(cookie.Value, ws)
+				HandleGetMyInfo(token, ws)
 			case "search-user":
 				fmt.Println("serach-user")
 				if request.Data.QueryEmail != nil {
